@@ -28,7 +28,6 @@ namespace R_CTester
             myRow.SetValue("Field2", "5");
             myRow.SetValue("Field3", "6");
 
-            // JNR TODO: FIX ENUMERATION
             foreach (RCTableRow row in myTable)
             {
                 Console.WriteLine("Field2:" + row.GetValue("Field2"));

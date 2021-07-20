@@ -74,6 +74,10 @@
     <Content Include=".git\ms-persist.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\IndexType.cs" />
+    <Compile Include="Data\RCRBTree.cs" />
+    <Compile Include="Data\RCRBTreeNode.cs" />
+    <Compile Include="Data\RCTableIndex.cs" />
     <Compile Include="Data\RCTable.cs" />
     <Compile Include="Data\RCTableRow.cs" />
   </ItemGroup>

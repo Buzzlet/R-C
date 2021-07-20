@@ -5,6 +5,8 @@ using System.Text;
 
 namespace R_C.Data
 {
+	// JNR 2021-07-19
+	// Table Row (strings only)
 	public class RCTableRow
 	{
 
@@ -17,6 +19,11 @@ namespace R_C.Data
 
 			FieldNames = fieldNames;
 			Values = new List<string>(fieldNames.Count);
+
+            for (int i = 0; i < fieldNames.Count; i++)
+            {
+				Values.Add("");
+            }
 
 		}
 

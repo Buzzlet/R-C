@@ -6,6 +6,8 @@ using System.Text;
 
 namespace R_C.Data
 {
+    // JNR 2021-07-19
+    // Table (strings only)
 	public class RCTable : IEnumerable<RCTableRow>
 	{
 
@@ -17,23 +19,22 @@ namespace R_C.Data
 			System.Console.WriteLine("RCTable");
 
 			FieldNames = new List<string>();
-		}
+            Rows = new List<RCTableRow>();
+        }
 
 		public RCTableRow AddNewRow()
         {
-			RCTableRow newRow;
+
 			// Only add rows after a table structure has been defined
             if (FieldNames.Count > 0)
             {
-
-				newRow = new RCTableRow(FieldNames);
+                Rows.Add(new RCTableRow(FieldNames));
+                return Rows[Rows.Count - 1];
             }
             else
             {
-				newRow = null;
+				return null;
             }
-
-			return newRow;
 
         }
 
