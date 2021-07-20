@@ -1,0 +1,6 @@
+F:\Documents\localProgramming\R-C\bin\Debug\ClassLibrary.dll
+F:\Documents\localProgramming\R-C\bin\Debug\ClassLibrary.pdb
+F:\Documents\localProgramming\R-C\obj\Debug\R-C.csproj.AssemblyReference.cache
+F:\Documents\localProgramming\R-C\obj\Debug\R-C.csproj.CoreCompileInputs.cache
+F:\Documents\localProgramming\R-C\obj\Debug\ClassLibrary.dll
+F:\Documents\localProgramming\R-C\obj\Debug\ClassLibrary.pdb
