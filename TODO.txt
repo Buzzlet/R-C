@@ -1,0 +1,16 @@
+﻿
+[   ] Update table class to utilize index
+	[   ] Create index class
+		[CJR] Create red black tree structure
+
+[   ] Create standard way of loading and populating tables from database
+
+[   ] Create process for syncing table classes and database structure
+	[   ] Determine basic database structure
+
+[   ] Create standard inbound X12 file validation 
+	[   ] Create standard way of archiving inbound X12
+	[   ] Create standard way of storing the X12 implementation
+
+[   ] Create standard inbound application file validation (delimited, fixed length, xml, json)
+	[   ] Create standard way of archiving inbound application file
