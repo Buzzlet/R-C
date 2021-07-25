@@ -66,11 +66,12 @@ namespace R_C.Data
 
 			// Do insert-rebalance loop
 
-			// Node, Parent, Grandparent, Uncle
 			N = addNode;
 
 			while(true)
 			{
+				// P: parent of N
+				RCRBTreeNode<T> P = N.parent;
 				// Conditions at this point:
 				// 1. N is red
 				// 2. There are no black-violations, since we entered this
@@ -79,9 +80,10 @@ namespace R_C.Data
 				// 3. If there is a red-violation, it is only between N and P
 				// 4. N is a valid red-black tree, though P may not be due to
 				//    a possible N-->P red-violation
-				RCRBTreeNode<T> P = N.parent;
+
 				// N is root, and N is a valid red-black tree, we're done
 				if(P == null) { return; }
+				// G: grandparent of N, U: uncle of N
 				RCRBTreeNode<T> G = P.parent, U = null;
 				int grandDir;
 				dir = P.childDir(N);
@@ -197,6 +199,8 @@ namespace R_C.Data
 					{
 						// N should be made the new root of {N, G, U} and their
 						// non-N descendants
+
+						// Great-grandparent of N
 						RCRBTreeNode<T> GG = G.parent;
 						// Inner child ("towards G") of N
 						RCRBTreeNode<T> I = N.children[1-grandDir];
