@@ -210,9 +210,9 @@ namespace R_C.Data
 						N.children[grandDir] = P;
 						P.parent = N;
 						P.children[dir] = O;
-						O.parent = P;
+						if(O != null) { O.parent = P; }
 						G.children[grandDir] = I;
-						I.parent = G;
+						if(I != null) { I.parent = G; }
 						// Now paths through P have one less black node than
 						// paths through its new sibling, G, and the
 						// red-violation between P and N still exists (though
