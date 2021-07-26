@@ -13,14 +13,6 @@ namespace R_C.Data
 		public static List<string> FieldNames;
 		public List<object> Values;
 		public RCTable Table;
-		public Dictionary<string, string> IndicesValues;
-		public string CurrentIndexValue
-		{
-			get
-			{
-				return IndicesValues[Table.CurrentIndex];
-			}
-		}
 
 		// Indexer
 		public dynamic this[string s]
@@ -33,7 +25,6 @@ namespace R_C.Data
 		{
 			System.Console.WriteLine("RCTableRow");
 
-			IndicesValues = new Dictionary<string, string>();
 			Table = table;
 			FieldNames = fieldNames;
 			Values = new List<object>(fieldNames.Count);
@@ -43,31 +34,6 @@ namespace R_C.Data
 				Values.Add(new Object());
 			}
 
-			CalculateIndicesValues();
-
-		}
-
-		public void CalculateIndicesValues()
-		{
-
-			IndicesValues.Clear();
-
-			foreach (RCTableIndex index in Table.Indices.Values)
-			{
-				string indexValue = "{";
-				foreach (string field in index.Fields)
-				{
-					indexValue += ("\"" + Values[FieldNames.IndexOf(field)].ToString() + "\"");
-					if (field != index.Fields.Last())
-					{
-						indexValue += ",";
-					}
-				}
-				indexValue += "}";
-
-				IndicesValues.Add(index.Name, indexValue);
-			}
-			
 		}
 
 		public object GetValue(int index)
@@ -121,7 +87,20 @@ namespace R_C.Data
 
 		public int CompareTo(object obj)
 		{
-			return CurrentIndexValue.CompareTo(((RCTableRow)obj).CurrentIndexValue);
+			RCTableRow row = (RCTableRow)obj;
+			int result = 0;
+			foreach (string field in Table.Indices[Table.CurrentIndex].Fields)
+			{
+				// Kinda ugly statement but it works
+				result = ((IComparable)this.GetValue(field)).CompareTo(((IComparable)row.GetValue(field)));
+				
+				if (result != 0)
+				{
+					return result;
+				}
+			}
+
+			return 0;
 		}
 	}
 }

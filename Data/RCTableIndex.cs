@@ -35,7 +35,6 @@ namespace R_C.Data
 
 		public void Add(RCTableRow row)
 		{
-			row.CalculateIndicesValues();
 			if (CompareTree.Seek(row) && Type == IndexType.StronglyUnique)
 			{
 				// Error... no duplicates allowed

@@ -272,7 +272,13 @@ namespace R_C.Data
 			// JNR - A little nicer than just seeing the type on the graph...
 			if (node.value.GetType() == typeof(RCTableRow))
 			{
-				nodeStr += ((RCTableRow)Convert.ChangeType(node.value, typeof(RCTableRow))).CurrentIndexValue.Replace("\"", "\\\"");
+				RCTableRow row = ((RCTableRow)Convert.ChangeType(node.value, typeof(RCTableRow)));
+				nodeStr += "{";
+				foreach (string field in row.Table.Indices[row.Table.CurrentIndex].Fields)
+				{
+					nodeStr += row[field] + ",";
+				}
+				nodeStr += "}";
 			}
 			else
 			{
