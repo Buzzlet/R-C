@@ -5,10 +5,10 @@ using System.Text;
 
 namespace R_C.Data
 {
-    // JNR / CJR 2021-07-20
-    // Red-black Tree Node
-    public class RCRBTreeNode<T> where T: IComparable
-    {
+	// JNR / CJR 2021-07-20
+	// Red-black Tree Node
+	public class RCRBTreeNode<T> where T: IComparable
+	{
 		public RCRBTreeNode<T>[] children;
 		// It should in theory be possible to implement insert and delete
 		// without needing parent references, by just keeping track of the path

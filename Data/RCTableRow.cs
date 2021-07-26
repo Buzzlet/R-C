@@ -31,10 +31,10 @@ namespace R_C.Data
 			FieldNames = fieldNames;
 			Values = new List<object>(fieldNames.Count);
 
-            for (int i = 0; i < fieldNames.Count; i++)
-            {
+			for (int i = 0; i < fieldNames.Count; i++)
+			{
 				Values.Add(new Object());
-            }
+			}
 
 			CalculateIndicesValues();
 
@@ -64,14 +64,14 @@ namespace R_C.Data
 		}
 
 		public object GetValue(int index)
-        {
+		{
 			return (index >= 0 && index < Values.Count) ? Values[index] : null;
-        }
+		}
 
 		public object GetValue(string fieldName)
-        {
-            return FieldNames.Contains(fieldName) ? Values[FieldNames.IndexOf(fieldName)] : null;
-        }
+		{
+			return FieldNames.Contains(fieldName) ? Values[FieldNames.IndexOf(fieldName)] : null;
+		}
 
 		public dynamic GetDynamic(int index)
 		{
@@ -84,15 +84,15 @@ namespace R_C.Data
 		}
 
 		public void SetValue(string fieldName, object value)
-        {
-            if (FieldNames.Contains(fieldName) && FieldNames.IndexOf(fieldName) < Values.Count)
-            {
+		{
+			if (FieldNames.Contains(fieldName) && FieldNames.IndexOf(fieldName) < Values.Count)
+			{
 				Values[FieldNames.IndexOf(fieldName)] = value;
 
 				// TODO: Handle updating indices
 
-            }
-        }
+			}
+		}
 
 		public int CompareTo(object obj)
 		{

@@ -11,8 +11,8 @@ using System.Diagnostics;
   2. All NIL leaves are considered black.
   3. If a node is red, then both its children are black.
   4. Every path from a given node to any of its descendant NIL leaves goes
-     through the same number of black nodes.
-     - in other words, all subtrees must be "black-balanced".
+	 through the same number of black nodes.
+	 - in other words, all subtrees must be "black-balanced".
 
   A violation of (3) is called a red-violation, and a violation of (4) is called
   a black-violation.
@@ -23,19 +23,19 @@ using System.Diagnostics;
 
 namespace R_C.Data
 {
-    // JNR / CJR 2021-07-20
-    // Red-black Tree
-    // Inserts, deletion, tree rearrangement, recoloring in O(logn)
-    public class RCRBTree<T> where T: IComparable
-    {
+	// JNR / CJR 2021-07-20
+	// Red-black Tree
+	// Inserts, deletion, tree rearrangement, recoloring in O(logn)
+	public class RCRBTree<T> where T: IComparable
+	{
 		public RCRBTreeNode<T> root;
-        public RCRBTree()
-        {
+		public RCRBTree()
+		{
 
-        }
+		}
 
-        public void Add(T addVal)
-        {
+		public void Add(T addVal)
+		{
 			// Find target parent node (if it doesn't exist, insert as root) and
 			// direction
 			RCRBTreeNode<T> N = root;
@@ -75,11 +75,11 @@ namespace R_C.Data
 				// Conditions at this point:
 				// 1. N is red
 				// 2. There are no black-violations, since we entered this
-				//    method without any and we haven't added or removed any
-				//    black nodes
+				//	method without any and we haven't added or removed any
+				//	black nodes
 				// 3. If there is a red-violation, it is only between N and P
 				// 4. N is a valid red-black tree, though P may not be due to
-				//    a possible N-->P red-violation
+				//	a possible N-->P red-violation
 
 				// N is root, and N is a valid red-black tree, we're done
 				if(P == null) { return; }
@@ -249,7 +249,7 @@ namespace R_C.Data
 				N = N.children[dir];
 			}
 			return false;
-        }
+		}
 
 		public void WriteGraphviz()
 		{
@@ -319,5 +319,5 @@ namespace R_C.Data
 			xdot.Close();
 			xdot.Dispose();
 		}
-    }
+	}
 }
