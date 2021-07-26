@@ -267,8 +267,18 @@ namespace R_C.Data
 								 int counter,
 								 TextWriter writer)
 		{
-			string nodeStr = counter + "[label=\"" + node.value + "\"" +
-				(node.isRed ? ", color=\"red\"" : "") + "];";
+			string nodeStr = counter + "[label=\"";
+
+			// JNR - A little nicer than just seeing the type on the graph...
+			if (node.value.GetType() == typeof(RCTableRow))
+			{
+				nodeStr += ((RCTableRow)Convert.ChangeType(node.value, typeof(RCTableRow))).CurrentIndexValue.Replace("\"", "\\\"");
+			}
+			else
+			{
+				nodeStr += node.value;
+			}
+			nodeStr += "\"" + (node.isRed ? ", color=\"red\"" : "") + "];";
 
 			writer.WriteLine(nodeStr);
 			int nextCounter = counter + 1;

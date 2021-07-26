@@ -11,15 +11,29 @@ namespace R_C.Data
 	public class RCTable : IEnumerable<RCTableRow>
 	{
 
-		public static List<string> FieldNames;
-		public static List<RCTableRow> Rows;
+		public List<string> FieldNames;
+		public List<RCTableRow> Rows;
+        public Dictionary<string, RCTableIndex> Indices;
+        public string CurrentIndex;
+        public RCTableEnum Enumerator
+		{
+            
+			get 
+            {
+                RCTableIndex tmp;
+                Indices.TryGetValue(CurrentIndex, out tmp);
+                return new RCTableEnum(Rows, tmp); 
+            }
+		}
 
 		public RCTable()
 		{
 			System.Console.WriteLine("RCTable");
 
-			FieldNames = new List<string>();
+            CurrentIndex = "";
+            FieldNames = new List<string>();
             Rows = new List<RCTableRow>();
+            Indices = new Dictionary<string, RCTableIndex>();
         }
 
 		public RCTableRow AddNewRow()
@@ -28,7 +42,7 @@ namespace R_C.Data
 			// Only add rows after a table structure has been defined
             if (FieldNames.Count > 0)
             {
-                Rows.Add(new RCTableRow(FieldNames));
+                Rows.Add(new RCTableRow(this, FieldNames));
                 return Rows[Rows.Count - 1];
             }
             else
@@ -43,6 +57,42 @@ namespace R_C.Data
 			FieldNames.Add(name);
         }
 
+        public RCTableIndex CreateIndexOn(string indexName, IndexType indexType, params string[] fields)
+		{
+            string saveCurrentIndex = CurrentIndex;
+            CurrentIndex = indexName;
+            if (Indices.ContainsKey(indexName)) 
+            {
+                Indices[indexName] = new RCTableIndex(this, indexName, indexType, fields);
+                Indices[indexName].CreateIndex();
+            }
+            else
+            {
+                Indices.Add(indexName, new RCTableIndex(this, indexName, indexType, fields));
+                Indices[indexName].CreateIndex();
+            }
+            CurrentIndex = saveCurrentIndex;
+            return Indices[indexName];
+		}
+
+        public void SetIndex(string indexName)
+		{
+            CurrentIndex = indexName;
+        }
+
+        public void SetIndex(RCTableIndex index)
+		{
+            if (Indices.ContainsKey(index.Name))
+			{
+                CurrentIndex = index.Name;
+			}
+			else
+			{
+                Indices.Add(index.Name, index);
+                CurrentIndex = index.Name;
+            }
+		}
+
 		IEnumerator<RCTableRow> IEnumerable<RCTableRow>.GetEnumerator()
         {
             return (IEnumerator<RCTableRow>)GetEnumerator();
@@ -50,7 +100,7 @@ namespace R_C.Data
 
         public RCTableEnum GetEnumerator()
         {
-            return new RCTableEnum(Rows);
+            return Enumerator;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -62,23 +112,42 @@ namespace R_C.Data
 	public class RCTableEnum : IEnumerator<RCTableRow>
     {
 		public List<RCTableRow> Rows;
+        public RCTableIndex Index;
 		int position = -1;
         private bool disposedValue;
 
-        public RCTableEnum(List<RCTableRow> rows)
+        public RCTableEnum(List<RCTableRow> rows, RCTableIndex index)
         {
 			Rows = rows;
+            Index = index;
         }
 
 		public bool MoveNext()
         {
-			position++;
-			return (position < Rows.Count);
+			if (Index == null)
+			{
+                position++;
+			    return (position < Rows.Count);
+			}
+			else
+			{
+                // TODO: Go to the next result in the index...
+                return false;
+			}
+			
         }
 
 		public void Reset()
         {
-			position = -1;
+			if (Index == null)
+			{
+                position = -1;
+			}
+			else
+			{
+                // TODO: Set index back to beginning of IEnumerable result
+			}
+			
         }
 
 

@@ -1,6 +1,6 @@
 ﻿namespace R_C.Data
 {
-    enum IndexType
+    public enum IndexType
     {
         StronglyUnique,
         NonUnique
