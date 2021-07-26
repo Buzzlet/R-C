@@ -22,6 +22,13 @@ namespace R_C.Data
 			}
 		}
 
+		// Indexer
+		public dynamic this[string s]
+		{
+			get { return GetDynamic(s);  }
+			set { SetValue(s, value);  }
+		}
+
 		public RCTableRow(RCTable table, List<string> fieldNames)
 		{
 			System.Console.WriteLine("RCTableRow");
@@ -87,10 +94,28 @@ namespace R_C.Data
 		{
 			if (FieldNames.Contains(fieldName) && FieldNames.IndexOf(fieldName) < Values.Count)
 			{
+				// Handle updating indices
+				foreach (RCTableIndex index in Table.Indices.Values)
+				{
+					// 1. Find all affected indices
+					if (index.Fields.Contains(fieldName))
+					{
+						// 2. Delete row from index
+						index.Delete(this);
+					}
+				}
+
+				// 3. Update field
 				Values[FieldNames.IndexOf(fieldName)] = value;
 
-				// TODO: Handle updating indices
-
+				foreach (RCTableIndex index in Table.Indices.Values)
+				{
+					if (index.Fields.Contains(fieldName))
+					{
+						 // 4. Add to all affected indices
+						 index.Add(this);
+					}
+				}
 			}
 		}
 

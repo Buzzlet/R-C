@@ -40,9 +40,10 @@ namespace R_CTester
 			myRow.SetValue("Field3", "9");
 
 			myRow = myTable.AddNewRow();
-			myRow.SetValue("Field1", "1");
-			myRow.SetValue("Field2", "5");
-			myRow.SetValue("Field3", "7");
+			myRow["Field1"] = "1";
+			myRow["Field2"] = "5";
+			myRow["Field3"] = "7";
+
 			myRow = myTable.AddNewRow();
 			myRow.SetValue("Field1", "1");
 			myRow.SetValue("Field2", "5");

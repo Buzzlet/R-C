@@ -29,16 +29,26 @@ namespace R_C.Data
 		{
 			foreach (RCTableRow row in Table.Rows)
 			{
-				row.CalculateIndicesValues();
-				if (CompareTree.Seek(row) && Type == IndexType.StronglyUnique)
-				{
-					// Error... no duplicates allowed
-				}
-				else
-				{
-					CompareTree.Add(row);
-				}
+				Add(row);
 			}
+		}
+
+		public void Add(RCTableRow row)
+		{
+			row.CalculateIndicesValues();
+			if (CompareTree.Seek(row) && Type == IndexType.StronglyUnique)
+			{
+				// Error... no duplicates allowed
+			}
+			else
+			{
+				CompareTree.Add(row);
+			}
+		}
+
+		public void Delete(RCTableRow row)
+		{
+			CompareTree.Delete(row);
 		}
 	}
 }
