@@ -23,34 +23,50 @@ namespace R_CTester
 
 			RCTableRow myRow = myTable.AddNewRow();
 
-			myRow.SetValue("Field1", "4");
-			myRow.SetValue("Field2", "2");
-			myRow.SetValue("Field3", "3");
+			myRow.SetValue("Field1", 4);
+			myRow.SetValue("Field2", 2);
+			myRow.SetValue("Field3", 3);
 
 			myRow = myTable.AddNewRow();
 
-			myRow.SetValue("Field1", "1");
-			myRow.SetValue("Field2", "5");
-			myRow.SetValue("Field3", "6");
+			myRow.SetValue("Field1", 1);
+			myRow.SetValue("Field2", 5);
+			myRow.SetValue("Field3", 6);
 
 			myRow = myTable.AddNewRow();
 
-			myRow.SetValue("Field1", "7");
-			myRow.SetValue("Field2", "8");
-			myRow.SetValue("Field3", "9");
+			myRow.SetValue("Field1", 7);
+			myRow.SetValue("Field2", 8);
+			myRow.SetValue("Field3", 9);
 
 			myRow = myTable.AddNewRow();
-			myRow["Field1"] = "1";
-			myRow["Field2"] = "5";
-			myRow["Field3"] = "7";
+			myRow["Field1"] = 1;
+			myRow["Field2"] = 5;
+			myRow["Field3"] = 7;
 
 			myRow = myTable.AddNewRow();
-			myRow.SetValue("Field1", "1");
-			myRow.SetValue("Field2", "5");
-			myRow.SetValue("Field3", "5");
+			myRow.SetValue("Field1", 1);
+			myRow.SetValue("Field2", 5);
+			myRow.SetValue("Field3", 5);
 
-			myTable.CreateIndexOn("testIndex", IndexType.StronglyUnique, "Field1", "Field3");
-			myTable.SetIndex("testIndex");
+			myTable.CreateAndSetIndex("testIndex", IndexType.StronglyUnique, "Field1", "Field2", "Field3");
+
+			foreach (RCTableRow row in myTable.Search(1))
+			{
+				  System.Console.WriteLine(row.GetDynamic("Field1").ToString() + row.GetDynamic("Field2").ToString() + row.GetDynamic("Field3").ToString());
+			}
+
+			System.Console.WriteLine();
+
+			if (myTable.FindFirst(1))
+			{
+				do 
+				{
+					System.Console.WriteLine(myTable.Current.GetDynamic("Field1").ToString() + 
+											 myTable.Current.GetDynamic("Field2").ToString() + 
+											 myTable.Current.GetDynamic("Field3").ToString());
+				} while (myTable.FindNext(1));
+			}
 
 			using (StreamWriter writer = File.CreateText("F:\\Documents\\localProgramming\\tmp\\myTree.out"))
 			{

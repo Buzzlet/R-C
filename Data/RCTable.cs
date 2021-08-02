@@ -7,7 +7,7 @@ using System.Text;
 namespace R_C.Data
 {
 	// JNR 2021-07-19
-	// Table (strings only)
+	// Table
 	public class RCTable : IEnumerable<RCTableRow>
 	{
 
@@ -15,14 +15,27 @@ namespace R_C.Data
 		public List<RCTableRow> Rows;
 		public Dictionary<string, RCTableIndex> Indices;
 		public string CurrentIndex;
+		public RCTableRow Current
+		{
+			get
+			{
+				return Enumerator.Current;
+			}
+		}
+
+		private RCTableEnum _enumerator;
 		public RCTableEnum Enumerator
 		{
 			
 			get 
 			{
-				RCTableIndex tmp;
-				Indices.TryGetValue(CurrentIndex, out tmp);
-				return new RCTableEnum(Rows, tmp); 
+				if (_enumerator == null)
+				{
+					RCTableIndex tmp;
+					Indices.TryGetValue(CurrentIndex, out tmp);
+					_enumerator = new RCTableEnum(Rows, tmp); 
+				}
+				return _enumerator;
 			}
 		}
 
@@ -77,21 +90,160 @@ namespace R_C.Data
 
 		public void SetIndex(string indexName)
 		{
+			RCTableIndex index;
 			CurrentIndex = indexName;
+			Indices.TryGetValue(CurrentIndex, out index);
+			Enumerator.Index = index;
+			Enumerator.Reset();
 		}
+
 
 		public void SetIndex(RCTableIndex index)
 		{
 			if (Indices.ContainsKey(index.Name))
 			{
 				CurrentIndex = index.Name;
+				Enumerator.Index = index;
+				Enumerator.Reset();
 			}
 			else
 			{
 				Indices.Add(index.Name, index);
 				CurrentIndex = index.Name;
+				Enumerator.Index = index;
+				Enumerator.Reset();
 			}
 		}
+		public void CreateAndSetIndex(string indexName, IndexType indexType, params string[] fields)
+		{
+			SetIndex(CreateIndexOn(indexName, indexType, fields));
+		}
+
+		public bool FindFirst(RCTableIndex index, params IComparable[] searchValues)
+		{
+			Enumerator.Index = index;
+			Enumerator.Reset();
+			bool exists = false;
+			while (!exists && Enumerator.MoveNext())
+			{
+				bool allMatch = true;
+				for (int i = 0; i < searchValues.Length; i++)
+				{
+					if (searchValues[i].CompareTo(Enumerator.Current[index.Fields[i]]) != 0)
+					{
+						allMatch = false;
+						break;
+					}
+				}
+
+				if (allMatch)
+				{
+					exists = true;
+				}
+			}
+			return exists;
+		}
+
+		public bool FindFirst(params IComparable[] searchValues)
+		{
+			RCTableIndex currentIndex;
+			Indices.TryGetValue(CurrentIndex, out currentIndex);
+			return FindFirst(currentIndex, searchValues);
+		}
+
+		public bool FindNext(RCTableIndex index, params IComparable[] searchValues)
+		{
+			Enumerator.Index = index;
+			bool exists = false;
+			while (!exists && Enumerator.MoveNext())
+			{
+				bool allMatch = true;
+				for (int i = 0; i < searchValues.Length; i++)
+				{
+					if (searchValues[i].CompareTo(Enumerator.Current[index.Fields[i]]) != 0)
+					{
+						allMatch = false;
+						break;
+					}
+				}
+
+				if (allMatch)
+				{
+					exists = true;
+				}
+			}
+			return exists;
+		}
+
+		public bool FindNext(params IComparable[] searchValues)
+		{
+			RCTableIndex currentIndex;
+			Indices.TryGetValue(CurrentIndex, out currentIndex);
+			return FindNext(currentIndex, searchValues);
+		}
+
+		public IEnumerable<RCTableRow> Search(RCTableIndex index, params IComparable[] searchValues)
+		{
+			RCRBTree<RCTableRow> rows = new RCRBTree<RCTableRow>();
+			bool addRow;
+			foreach (RCTableRow row in index.CompareTree)
+			{
+				addRow = true;
+				for (int i = 0; i < searchValues.Length; i++)
+				{
+					if (searchValues[i].CompareTo(row[index.Fields[i]]) != 0)
+					{
+						addRow = false;
+						break;
+					}
+				}
+
+				if (addRow)
+				{
+					rows.Add(row);
+				}
+				else if (rows.Count != 0)
+				{
+					// All of the search values should be together, so if we've already found some
+					// and we just didn't find one, we should have all of them, so save some time
+					return rows;
+				}
+			}
+			return rows;
+		}
+
+		public IEnumerable<RCTableRow> Search(params IComparable[] searchValues)
+		{
+			RCTableIndex currentIndex;
+			Indices.TryGetValue(CurrentIndex, out currentIndex);
+			return Search(currentIndex, searchValues);
+		}
+
+		public void ConnectDB()
+		{
+
+		}
+
+		public void DisconnectDB()
+		{
+
+		}
+
+		public void Commit()
+		{
+
+		}
+
+		public void Select()
+		{
+
+		}
+
+		public void FetchAll()
+		{
+
+		}
+
 
 		IEnumerator<RCTableRow> IEnumerable<RCTableRow>.GetEnumerator()
 		{
@@ -113,6 +265,7 @@ namespace R_C.Data
 	{
 		public List<RCTableRow> Rows;
 		public RCTableIndex Index;
+		public RCRBTreeEnumerator<RCTableRow> RCRBEnumerator;
 		int position = -1;
 		private bool disposedValue;
 
@@ -120,6 +273,10 @@ namespace R_C.Data
 		{
 			Rows = rows;
 			Index = index;
+			if (Index != null)
+			{
+				RCRBEnumerator = (RCRBTreeEnumerator<RCTableRow>)Index.CompareTree.GetEnumerator();
+			}
 		}
 
 		public bool MoveNext()
@@ -131,8 +288,11 @@ namespace R_C.Data
 			}
 			else
 			{
-				// TODO: Go to the next result in the index...
-				return false;
+				if (Index != null && RCRBEnumerator == null)
+				{
+					RCRBEnumerator = (RCRBTreeEnumerator<RCTableRow>)Index.CompareTree.GetEnumerator();
+				}
+				return RCRBEnumerator.MoveNext();
 			}
 			
 		}
@@ -145,7 +305,11 @@ namespace R_C.Data
 			}
 			else
 			{
-				// TODO: Set index back to beginning of IE result
+				if (Index != null && RCRBEnumerator == null)
+				{
+					RCRBEnumerator = (RCRBTreeEnumerator<RCTableRow>)Index.CompareTree.GetEnumerator();
+				}
+				RCRBEnumerator.Reset();
 			}
 			
 		}
@@ -155,13 +319,24 @@ namespace R_C.Data
 		{
 			get
 			{
-				try
+				if (Index == null)
 				{
-					return Rows[position];
+					try
+					{
+						return Rows[position];
+					}
+					catch (IndexOutOfRangeException)
+					{
+						throw new InvalidOperationException();
+					}
 				}
-				catch (IndexOutOfRangeException)
+				else
 				{
-					throw new InvalidOperationException();
+					if (RCRBEnumerator == null)
+					{
+						RCRBEnumerator = (RCRBTreeEnumerator<RCTableRow>)Index.CompareTree.GetEnumerator();
+					}
+					return RCRBEnumerator.Current;
 				}
 			}
 		}

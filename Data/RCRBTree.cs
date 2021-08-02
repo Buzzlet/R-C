@@ -28,6 +28,7 @@ namespace R_C.Data
 	// Inserts, deletion, tree rearrangement, recoloring in O(logn)
 	public class RCRBTree<T> : IEnumerable<T> where T: IComparable
 	{
+		public int Count = 0;
 		public RCRBTreeNode<T> root;
 		public RCRBTree()
 		{
@@ -42,6 +43,7 @@ namespace R_C.Data
 			int dir = 0;
 			if(N == null)
 			{
+				Count += 1;
 				root = new RCRBTreeNode<T>(addVal);
 				return;
 			}
@@ -82,7 +84,7 @@ namespace R_C.Data
 				//	a possible N-->P red-violation
 
 				// N is root, and N is a valid red-black tree, we're done
-				if(P == null) { return; }
+				if(P == null) { Count += 1; return; }
 				// G: grandparent of N, U: uncle of N
 				RCRBTreeNode<T> G = P.parent, U = null;
 				int grandDir;
@@ -90,7 +92,7 @@ namespace R_C.Data
 
 				// Only possible violation at present is a red-violation between
 				// N and P. Without that, tree is a valid red-black tree.
-				if(!P.isRed) { return; }
+				if(!P.isRed) { Count += 1; return; }
 
 				// Identify which of the three actionable cases it is:
 				// 1. Parent is root (G is null)
@@ -101,6 +103,7 @@ namespace R_C.Data
 					// paths go through the root, so the black-height is
 					// increased equally in all of them.
 					P.isRed = false;
+					Count += 1;
 					return;
 				}
 				// hereafter G != null and P is red
@@ -193,6 +196,7 @@ namespace R_C.Data
 						P.isRed = false;
 						G.isRed = true;
 						// there are now no violations.
+						Count += 1;
 						return;
 					}
 					else
@@ -226,6 +230,7 @@ namespace R_C.Data
 						N.isRed = false;
 						G.isRed = true;
 						// there are now no violations.
+						Count += 1;
 						return;
 					}
 				}
@@ -235,7 +240,7 @@ namespace R_C.Data
 
 		public void Delete(T deleteVal)
 		{
-
+			Count -= 1;
 		}
 
 		public bool Seek(T searchVal)
@@ -260,115 +265,6 @@ namespace R_C.Data
 			System.Collections.IEnumerable.GetEnumerator()
 		{
 			return new RCRBTreeEnumerator<T>(this);
-		}
-
-		class RCRBTreeEnumerator<T> : IEnumerator<T> where T : IComparable
-		{
-			RCRBTree<T> tree;
-			RCRBTreeNode<T> N;
-			const int
-				PREDECESSOR = RCRBTreeNode<T>.PREDECESSOR,
-				SUCCESSOR = RCRBTreeNode<T>.SUCCESSOR;
-			public RCRBTreeEnumerator(RCRBTree<T> tree)
-			{
-				this.tree = tree;
-				this.N = null;
-			}
-
-			public T Current { get { return N.value; } }
-			object System.Collections.IEnumerator.Current
-			{ get { return N.value; } }
-
-			// Only resources this enumerator uses is memory...
-			public void Dispose() {}
-
-			// root must be non-null
-			static RCRBTreeNode<T> MinNode(RCRBTreeNode<T> root)
-			{
-				while(root.children[RCRBTreeNode<T>.PREDECESSOR] != null)
-				{
-					root = root.children[RCRBTreeNode<T>.PREDECESSOR];
-				}
-				return root;
-			}
-
-			public void Reset()
-			{
-				N = null;
-			}
-
-			public bool MoveNext()
-			{
-				// Initial case
-				if(N == null)
-				{
-					if(tree.root != null)
-					{
-						N = MinNode(tree.root);
-						return true;
-					}
-					else
-					{
-						// Tree is empty
-						return false;
-					}
-				}
-
-				// The successor of N is the node M such that N < M and for all
-				// nodes Q in the tree, Q ≤ N or Q ≥ M.
-
-				// A binary tree is defined by the property that all
-				// left-descendants of a node are less than it, and all
-				// right-descendants of a node are greater than it.
-
-				// Equivalently, the right-parent of a subtree is always greater
-				// than every node in it, and the left-parent of a subtree is
-				// always less than every node in it.
-
-				// Important to note is that every subtree is a contiguous
-				// range. That is, for any subtree N, minVal(N) ≤ M ≤ maxVal(N)
-				// implies that M is in the subtree N. My proof of this isn't
-				// very concise, so I'll leave it out.
-				if(N.children[SUCCESSOR] != null)
-				{
-					// down-right, then as far down-left as possible
-					N = MinNode(N.children[SUCCESSOR]);
-					return true;
-				}
-				else
-				{
-					// as far up-left as possible, then up-right
-					RCRBTreeNode<T> newNode = N;
-					while(newNode.parent != null)
-					{
-						// Invariant: At this point, N is the greatest
-						// descendant of the subtree with root newNode
-						if(newNode.parent.childDir(newNode) == PREDECESSOR)
-						{
-							// 1. newNode's parent is greater than the entire
-							//    subtree rooted at newNode
-							// 2. N is the greatest descendant of the subtree
-							//    rooted at newNode
-							// 3. The subtree rooted at newNode.parent is a
-							//    contiguous range, so any node whose value is
-							//    within its bounds is a member of it. No node
-							//    that is a member of it exists between N and
-							//    newNode.parent, so no node between N and
-							//    newNode.parent exists at all. Therefore
-							//    newNode.parent is N's successor.
-							N = newNode.parent;
-							return true;
-						}
-
-						// newNode.parent is the left-parent, so N is also the
-						// greatest descendant of the subtree with root
-						// newNode.parent.
-						newNode = newNode.parent;
-					}
-					// No successor! Traversal is done.
-					return false;
-				}
-			}
 		}
 
 		public void WriteGraphviz()
@@ -444,6 +340,115 @@ namespace R_C.Data
 			xdot.WaitForExit();
 			xdot.Close();
 			xdot.Dispose();
+		}
+	}
+
+	public class RCRBTreeEnumerator<T> : IEnumerator<T> where T : IComparable
+	{
+		RCRBTree<T> tree;
+		RCRBTreeNode<T> N;
+		const int
+			PREDECESSOR = RCRBTreeNode<T>.PREDECESSOR,
+			SUCCESSOR = RCRBTreeNode<T>.SUCCESSOR;
+		public RCRBTreeEnumerator(RCRBTree<T> tree)
+		{
+			this.tree = tree;
+			this.N = null;
+		}
+
+		public T Current { get { return N.value; } }
+		object System.Collections.IEnumerator.Current
+		{ get { return N.value; } }
+
+		// Only resources this enumerator uses is memory...
+		public void Dispose() { }
+
+		// root must be non-null
+		static RCRBTreeNode<T> MinNode(RCRBTreeNode<T> root)
+		{
+			while (root.children[RCRBTreeNode<T>.PREDECESSOR] != null)
+			{
+				root = root.children[RCRBTreeNode<T>.PREDECESSOR];
+			}
+			return root;
+		}
+
+		public void Reset()
+		{
+			N = null;
+		}
+
+		public bool MoveNext()
+		{
+			// Initial case
+			if (N == null)
+			{
+				if (tree.root != null)
+				{
+					N = MinNode(tree.root);
+					return true;
+				}
+				else
+				{
+					// Tree is empty
+					return false;
+				}
+			}
+
+			// The successor of N is the node M such that N < M and for all
+			// nodes Q in the tree, Q ≤ N or Q ≥ M.
+
+			// A binary tree is defined by the property that all
+			// left-descendants of a node are less than it, and all
+			// right-descendants of a node are greater than it.
+
+			// Equivalently, the right-parent of a subtree is always greater
+			// than every node in it, and the left-parent of a subtree is
+			// always less than every node in it.
+
+			// Important to note is that every subtree is a contiguous
+			// range. That is, for any subtree N, minVal(N) ≤ M ≤ maxVal(N)
+			// implies that M is in the subtree N. My proof of this isn't
+			// very concise, so I'll leave it out.
+			if (N.children[SUCCESSOR] != null)
+			{
+				// down-right, then as far down-left as possible
+				N = MinNode(N.children[SUCCESSOR]);
+				return true;
+			}
+			else
+			{
+				// as far up-left as possible, then up-right
+				RCRBTreeNode<T> newNode = N;
+				while (newNode.parent != null)
+				{
+					// Invariant: At this point, N is the greatest
+					// descendant of the subtree with root newNode
+					if (newNode.parent.childDir(newNode) == PREDECESSOR)
+					{
+						// 1. newNode's parent is greater than the entire
+						//    subtree rooted at newNode
+						// 2. N is the greatest descendant of the subtree
+						//    rooted at newNode
+						// 3. The subtree rooted at newNode.parent is a
+						//    contiguous range, so any node whose value is
+						//    within its bounds is a member of it. No node
+						//    that is a member of it exists between N and
+						//    newNode.parent, so no node between N and
+						//    newNode.parent exists at all. Therefore
+						//    newNode.parent is N's successor.
+						N = newNode.parent;
+						return true;
+					}
+
+					// newNode.parent is the left-parent, so N is also the
+					// greatest descendant of the subtree with root
+					// newNode.parent.
+					newNode = newNode.parent;
+				}
+				// No successor! Traversal is done.
+				return false;
+			}
 		}
 	}
 }
